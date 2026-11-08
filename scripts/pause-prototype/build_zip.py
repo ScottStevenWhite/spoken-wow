@@ -44,7 +44,11 @@ def add_file(archive, source, name):
     info.external_attr = (0o100000 | mode) << 16
     info.compress_type = zipfile.ZIP_DEFLATED
     with open(source, "rb") as f:
-        archive.writestr(info, f.read())
+        data = f.read()
+    if source.suffix == ".bat":
+        # cmd.exe misreads a batch file with bare LF line ends, and git may have stored it that way.
+        data = data.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+    archive.writestr(info, data)
 
 
 def main():
